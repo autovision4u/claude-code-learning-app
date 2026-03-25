@@ -6,8 +6,14 @@ import json
 from pathlib import Path
 from datetime import datetime
 
+import os
+
 BASE_DIR = Path(__file__).parent.parent
-PROGRESS_FILE = BASE_DIR / ".tmp" / "progress.json"
+# On Vercel the filesystem is read-only except /tmp
+PROGRESS_FILE = (
+    Path("/tmp/progress.json") if os.environ.get("VERCEL")
+    else BASE_DIR / ".tmp" / "progress.json"
+)
 
 
 def _load() -> dict:
