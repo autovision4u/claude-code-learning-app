@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+{% block title %}קוד המקור — claude_client.py{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/lesson.css') }}">
+{% endblock %}
+
+{% block content %}
+<div style="max-width: 860px; margin: 0 auto;">
+  <h1 style="font-size: 1.6rem; font-weight: 700; margin-bottom: 0.5rem;">
+    🔍 הקוד שמריץ את האפליקציה הזו
+  </h1>
+  <p style="color: var(--text-light); margin-bottom: 1.5rem;">
+    זהו הקובץ <code>tools/claude_client.py</code> — הוא מריץ את כל קריאות ה-API בשם זה שאתה רואה באפליקציה.
+    בדיוק כמו שלמדת במודול 4!
+  </p>
+
+  <div class="tip-block" style="margin-bottom: 1.5rem;">
+    💡 שים לב לשלושת הפונקציות: <code>simple_call()</code>, <code>streaming_call()</code>, ו-<code>evaluate_exercise()</code>.
+    כל פיצ'ר באפליקציה משתמש באחת מהן.
+  </div>
+
+  <div class="code-block-wrap">
+    <div class="code-caption">tools/claude_client.py</div>
+    <pre><code>{{ source_code }}</code></pre>
+  </div>
+
+  <div style="margin-top: 1.5rem;">
+    <a href="/module/module_4" class="btn btn-primary">← חזור למודול 4</a>
+    <a href="/" class="btn btn-outline" style="margin-right: 0.5rem;">בית</a>
+  </div>
+</div>
+{% endblock %}

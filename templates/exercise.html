@@ -1,0 +1,93 @@
+{% extends "base.html" %}
+{% block title %}תרגיל — {{ module.title_he }}{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/exercise.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="exercise-container">
+
+  <div class="exercise-header">
+    <a href="/quiz/{{ module.module_id }}" class="breadcrumb-link">← חזור לחידון</a>
+    <h1 class="exercise-title">🎯 תרגיל: {{ module.title_he }}</h1>
+  </div>
+
+  <div class="exercise-card card">
+    <div class="exercise-instructions">
+      <h2>{{ exercise.title_he }}</h2>
+      <div class="instructions-text">{{ exercise.instructions_he }}</div>
+    </div>
+
+    <div class="exercise-input-area">
+      <textarea
+        id="exercise-input"
+        class="exercise-textarea"
+        placeholder="{{ exercise.placeholder_he }}"
+        rows="8"
+        dir="rtl"
+      >{% if status.get('exercise_feedback') %}{{ '' }}{% endif %}</textarea>
+
+      <div class="exercise-actions">
+        <button id="submit-btn" class="btn btn-success" onclick="submitExercise()">
+          שלח לבדיקה של קלוד ←
+        </button>
+        <span class="char-count" id="char-count">0 תווים</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Feedback panel -->
+  <div id="feedback-panel" class="feedback-panel hidden">
+    <div class="feedback-header">
+      <span class="feedback-icon">🤖</span>
+      <span>משוב מקלוד</span>
+    </div>
+
+    <div id="feedback-error" class="feedback-error hidden"></div>
+
+    <div id="feedback-content" class="hidden">
+      <div class="feedback-section feedback-good">
+        <div class="feedback-section-title">✅ מה עבד טוב</div>
+        <div id="fb-worked" class="feedback-section-body"></div>
+      </div>
+
+      <div class="feedback-section feedback-improve">
+        <div class="feedback-section-title">🔧 מה אפשר לשפר</div>
+        <div id="fb-improve" class="feedback-section-body"></div>
+      </div>
+
+      <div class="feedback-section feedback-example">
+        <div class="feedback-section-title">💡 דוגמה משופרת</div>
+        <div id="fb-example" class="feedback-section-body"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Completion -->
+  <div id="completion-panel" class="completion-panel hidden">
+    <div class="completion-icon">🎉</div>
+    <h2>כל הכבוד! סיימת את מודול {{ module.order }}</h2>
+    <p>השלמת שיעורים, חידון ותרגיל מעשי.</p>
+    <div class="completion-actions">
+      {% if module.order < 4 %}
+        <a href="/module/module_{{ module.order + 1 }}" class="btn btn-primary">
+          מודול {{ module.order + 1 }} ←
+        </a>
+      {% else %}
+        <a href="/progress" class="btn btn-success">ראה את ההתקדמות שלך 🏆</a>
+      {% endif %}
+      <a href="/" class="btn btn-outline">חזור לבית</a>
+    </div>
+  </div>
+
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+const MODULE_ID = "{{ module.module_id }}";
+const MIN_LENGTH = {{ exercise.min_length }};
+</script>
+<script src="{{ url_for('static', filename='js/exercise.js') }}"></script>
+{% endblock %}

@@ -1,0 +1,140 @@
+{
+  "module_id": "module_2",
+  "title_he": "תוכן דינמי",
+  "description_he": "גלה כיצד קלוד מייצר תוכן שמשתנה לפי הקשר, ואיך לשלוט על היצירתיות שלו",
+  "icon": "⚡",
+  "order": 2,
+  "lessons": [
+    {
+      "lesson_id": "2_1",
+      "title_he": "מה זה תוכן דינמי?",
+      "type": "content",
+      "content_blocks": [
+        {
+          "type": "text",
+          "text_he": "תוכן סטטי הוא קבוע — כמו דף Wikipedia. תוכן דינמי נוצר בזמן אמת בהתאם לקלט. קלוד הוא מנוע לתוכן דינמי: כל קריאה ל-API מייצרת תגובה חדשה."
+        },
+        {
+          "type": "tip",
+          "text_he": "💡 הדף שאתה קורא עכשיו הוא דוגמה חיה: כשאתה שולח תרגיל, קלוד מייצר משוב מותאם אישית בזמן אמת — לא טקסט שכתבנו מראש."
+        },
+        {
+          "type": "comparison",
+          "bad_label_he": "תוכן סטטי",
+          "good_label_he": "תוכן דינמי עם קלוד",
+          "bad_example": "\"ברוך הבא, משתמש!\" — אותו טקסט לכולם",
+          "good_example": "\"ברוך הבא! ראיתי שאתה לומד Python — הנה טיפ רלוונטי...\" — נוצר לפי ההקשר שלך"
+        },
+        {
+          "type": "text",
+          "text_he": "תוכן דינמי שימושי ל: אפליקציות שאלות ותשובות, מחוללי סיכומים, כלי ניתוח טקסט, צ'אטבוטים מותאמים, ועוד."
+        }
+      ]
+    },
+    {
+      "lesson_id": "2_2",
+      "title_he": "טמפרטורה: שליטה על יצירתיות",
+      "type": "content",
+      "content_blocks": [
+        {
+          "type": "text",
+          "text_he": "פרמטר ה-temperature שולט כמה 'יצירתי' או 'צפוי' קלוד יהיה בתגובותיו."
+        },
+        {
+          "type": "code",
+          "language": "python",
+          "caption_he": "שליטה ב-temperature דרך ה-API",
+          "code": "import anthropic\n\nclient = anthropic.Anthropic()\n\n# temperature=0 — דטרמיניסטי, עקבי, עובדתי\nmessage = client.messages.create(\n    model=\"claude-opus-4-5\",\n    max_tokens=256,\n    temperature=0,  # מ-0 עד 1\n    messages=[{\"role\": \"user\", \"content\": \"מה הבירה של ישראל?\"}]\n)\nprint(message.content[0].text)  # תמיד: \"ירושלים\""
+        },
+        {
+          "type": "text",
+          "text_he": "temperature=0: תמיד את אותה תשובה — מתאים לשאלות עובדתיות, פרסינג, סיווג.\ntemperature=1: תשובות מגוונות ויצירתיות — מתאים לסיפורים, רעיונות, כתיבה יצירתית."
+        },
+        {
+          "type": "live_demo",
+          "description_he": "לחץ כדי לראות תוכן דינמי: אותו פרומפט, תגובה שונה בכל לחיצה",
+          "system": "אתה מורה יצירתי שנותן עצות לימוד בעברית. היה מקורי.",
+          "prompt": "תן לי עצת לימוד אחת קצרה ומקורית ללומד מתחיל."
+        }
+      ]
+    },
+    {
+      "lesson_id": "2_3",
+      "title_he": "הנחיות מערכת (System Prompts)",
+      "type": "content",
+      "content_blocks": [
+        {
+          "type": "text",
+          "text_he": "הנחיית מערכת (system prompt) היא הוראה שמגדירה את האישיות, התפקיד וכללי ההתנהגות של קלוד — לפני שהמשתמש שואל כלום."
+        },
+        {
+          "type": "code",
+          "language": "python",
+          "caption_he": "שימוש ב-system prompt",
+          "code": "message = client.messages.create(\n    model=\"claude-opus-4-5\",\n    max_tokens=512,\n    system=\"אתה מדריך Python ידידותי שמסביר רק בעברית פשוטה. \"\n           \"תמיד תן דוגמת קוד קצרה. אל תשתמש במינוח מתקדם.\",\n    messages=[\n        {\"role\": \"user\", \"content\": \"מה זה loop?\"}\n    ]\n)"
+        },
+        {
+          "type": "comparison",
+          "bad_label_he": "ללא system prompt",
+          "good_label_he": "עם system prompt מוגדר",
+          "bad_example": "תגובה ארוכה בעברית ואנגלית מעורבת עם מינוח מתקדם",
+          "good_example": "הסבר קצר בעברית פשוטה עם דוגמת קוד — בדיוק כמו שביקשנו"
+        },
+        {
+          "type": "tip",
+          "text_he": "💡 ב-Claude Code (הכלי שאתה משתמש בו), הנחיות ה-CLAUDE.md משמשות כ-system prompt — הן מגדירות איך קלוד יתנהג בפרויקט שלך."
+        }
+      ]
+    }
+  ],
+  "quiz": {
+    "questions": [
+      {
+        "question_id": "q2_1",
+        "question_he": "temperature=0 מתאים ביותר עבור:",
+        "type": "multiple_choice",
+        "options": [
+          { "id": "a", "text_he": "כתיבת שיר יצירתי" },
+          { "id": "b", "text_he": "חילוץ תאריכים מטקסט בצורה עקבית" },
+          { "id": "c", "text_he": "מתן רעיונות לשם עסק" }
+        ],
+        "correct_answer": "b",
+        "explanation_he": "temperature=0 מייצר תגובות עקביות ודטרמיניסטיות — מתאים לעיבוד נתונים, פרסינג, וסיווג. לשיר או רעיונות נרצה temperature גבוה יותר."
+      },
+      {
+        "question_id": "q2_2",
+        "question_he": "איפה מגדירים את האישיות וכללי ההתנהגות של קלוד?",
+        "type": "multiple_choice",
+        "options": [
+          { "id": "a", "text_he": "בהודעת המשתמש (user message)" },
+          { "id": "b", "text_he": "בהנחיית המערכת (system prompt)" },
+          { "id": "c", "text_he": "בשם המודל" }
+        ],
+        "correct_answer": "b",
+        "explanation_he": "ה-system prompt מגדיר את ה'אישיות' הבסיסית של קלוד עבור כל השיחה. ניתן לכתוב זאת גם ב-user message, אבל ה-system prompt הוא המקום המתאים לכך."
+      },
+      {
+        "question_id": "q2_3",
+        "question_he": "האם אותו פרומפט עם temperature=1 תמיד יחזיר אותה תשובה?",
+        "type": "multiple_choice",
+        "options": [
+          { "id": "a", "text_he": "כן, תמיד אותה תשובה" },
+          { "id": "b", "text_he": "לא, התשובות ישתנו בכל קריאה" },
+          { "id": "c", "text_he": "תלוי בשאלה" }
+        ],
+        "correct_answer": "b",
+        "explanation_he": "temperature=1 מוסיף רנדומיות לבחירת המילים. אותו פרומפט יניב תשובות שונות בכל קריאה — זה בדיוק הרעיון של תוכן דינמי."
+      }
+    ],
+    "passing_score": 2
+  },
+  "exercise": {
+    "exercise_id": "ex_2",
+    "title_he": "עצב הנחיית מערכת",
+    "instructions_he": "כתוב system prompt לעוזר וירטואלי שעוזר לסטודנטים עם שאלות מתמטיקה. הגדר: תפקיד, שפה, סגנון הסבר, ומה לעשות כשהסטודנט טועה. ה-system prompt צריך לגרום לקלוד להיות מורה סבלני ומעודד.",
+    "placeholder_he": "כתוב את הנחיית המערכת שלך כאן...",
+    "evaluation_mode": "claude_feedback",
+    "system_prompt_file": "exercise_feedback.txt",
+    "min_length": 30
+  }
+}

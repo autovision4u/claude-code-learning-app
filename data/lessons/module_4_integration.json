@@ -1,0 +1,178 @@
+{
+  "module_id": "module_4",
+  "title_he": "שילוב קלוד בקוד",
+  "description_he": "למד לקרוא ל-API של Anthropic מ-Python ולהבין את ההבדל בין ה-CLI ל-API",
+  "icon": "🔧",
+  "order": 4,
+  "lessons": [
+    {
+      "lesson_id": "4_1",
+      "title_he": "ה-API של Anthropic",
+      "type": "content",
+      "content_blocks": [
+        {
+          "type": "text",
+          "text_he": "ה-API (Application Programming Interface) של Anthropic מאפשר לך לקרוא לקלוד מקוד Python שלך — כלומר לבנות אפליקציות שמשתמשות בקלוד כמנוע חכם."
+        },
+        {
+          "type": "text",
+          "text_he": "כל קריאה ל-API דורשת שלושה דברים:"
+        },
+        {
+          "type": "code",
+          "language": "text",
+          "caption_he": "שלושת הדברים הנדרשים לכל קריאה",
+          "code": "1. מפתח API    — הזיהוי שלך (ANTHROPIC_API_KEY)\n2. שם המודל   — איזה גרסה של קלוד לשלוח ('claude-opus-4-5')\n3. הודעות     — messages: רשימת {role, content}"
+        },
+        {
+          "type": "tip",
+          "text_he": "💡 Claude Code (הכלי שאתה משתמש בו עכשיו) הוא בעצמו אפליקציה שמשתמשת ב-API הזה! אנחנו בדיוק בונים גרסה מינימלית שלו."
+        }
+      ]
+    },
+    {
+      "lesson_id": "4_2",
+      "title_he": "התקנה והגדרה",
+      "type": "content",
+      "content_blocks": [
+        {
+          "type": "text",
+          "text_he": "שלבי ההגדרה החד-פעמיים לפני שניתן לכתוב קוד:"
+        },
+        {
+          "type": "code",
+          "language": "bash",
+          "caption_he": "שלב 1: התקן את ספריית Anthropic",
+          "code": "pip install anthropic python-dotenv"
+        },
+        {
+          "type": "code",
+          "language": "text",
+          "caption_he": "שלב 2: צור קובץ .env בשורש הפרויקט",
+          "code": "ANTHROPIC_API_KEY=sk-ant-api03-..."
+        },
+        {
+          "type": "code",
+          "language": "python",
+          "caption_he": "שלב 3: טען את המפתח בקוד שלך",
+          "code": "from dotenv import load_dotenv\nimport os\n\nload_dotenv()  # טוען את .env\napi_key = os.getenv(\"ANTHROPIC_API_KEY\")"
+        },
+        {
+          "type": "comparison",
+          "bad_label_he": "❌ אסור — חושף את המפתח",
+          "good_label_he": "✅ מותר — מפתח מוסתר",
+          "bad_example": "api_key = \"sk-ant-api03-abc123...\"  # ישירות בקוד!",
+          "good_example": "api_key = os.getenv(\"ANTHROPIC_API_KEY\")  # מה-.env"
+        },
+        {
+          "type": "tip",
+          "text_he": "💡 מפתח API הוא כמו סיסמה. אל תכתוב אותו ישירות בקוד ואל תעלה אותו ל-GitHub. ה-.gitignore בפרויקט הזה כבר מגן על קובץ ה-.env."
+        }
+      ]
+    },
+    {
+      "lesson_id": "4_3",
+      "title_he": "קוד Python בסיסי",
+      "type": "content",
+      "content_blocks": [
+        {
+          "type": "text",
+          "text_he": "הנה הקוד המינימלי לקריאה ל-API — זה הכל מה שצריך:"
+        },
+        {
+          "type": "code",
+          "language": "python",
+          "caption_he": "קריאה בסיסית ל-API",
+          "code": "import anthropic\nfrom dotenv import load_dotenv\n\nload_dotenv()\n\nclient = anthropic.Anthropic()  # לוקח את המפתח מה-.env אוטומטית\n\nmessage = client.messages.create(\n    model=\"claude-opus-4-5\",\n    max_tokens=1024,\n    messages=[\n        {\"role\": \"user\", \"content\": \"שלום! מה 2+2?\"}\n    ]\n)\n\nprint(message.content[0].text)"
+        },
+        {
+          "type": "code",
+          "language": "python",
+          "caption_he": "גרסה מלאה יותר עם system prompt",
+          "code": "message = client.messages.create(\n    model=\"claude-opus-4-5\",\n    max_tokens=1024,\n    temperature=0.7,\n    system=\"אתה עוזר ידידותי שעונה תמיד בעברית.\",\n    messages=[\n        {\"role\": \"user\", \"content\": \"הסבר לי מה זה machine learning\"}\n    ]\n)\n\nprint(message.content[0].text)"
+        },
+        {
+          "type": "live_demo",
+          "description_he": "לחץ כדי לראות קריאה חיה ל-API — בדיוק כמו הקוד למעלה",
+          "system": "אתה עוזר ידידותי שעונה בעברית פשוטה.",
+          "prompt": "הסבר ב-2 משפטים מה זה API."
+        }
+      ]
+    },
+    {
+      "lesson_id": "4_4",
+      "title_he": "CLI מול API",
+      "type": "content",
+      "content_blocks": [
+        {
+          "type": "text",
+          "text_he": "Claude Code CLI הוא הכלי שאתה משתמש בו עכשיו. ה-API הוא ממשק התכנות. מה ההבדל?"
+        },
+        {
+          "type": "code",
+          "language": "text",
+          "caption_he": "מתי להשתמש ב-CLI מול API",
+          "code": "🖥️  Claude Code CLI:\n   - עבודה אינטראקטיבית — שואל, מתקן, כותב קוד\n   - ניהול קבצים בפרויקט\n   - debug ופתרון בעיות בזמן אמת\n   - אין צורך בכתיבת קוד\n\n⚙️  Anthropic API:\n   - בניית מוצרים ואפליקציות\n   - אוטומציה — הרצה ללא נוכחות אדם\n   - שילוב Claude בתוך תהליכים קיימים\n   - שליטה מלאה על כל פרמטר"
+        },
+        {
+          "type": "tip",
+          "text_he": "💡 הם לא מתחרים — משלימים. CLI לפיתוח ועבודה, API למוצר הסופי."
+        },
+        {
+          "type": "text",
+          "text_he": "האפליקציה הזו שאתה לומד בה עכשיו היא דוגמה: היא נבנתה בעזרת Claude Code CLI, והיא עצמה מריצה קריאות API כדי לתת לך משוב."
+        }
+      ]
+    }
+  ],
+  "quiz": {
+    "questions": [
+      {
+        "question_id": "q4_1",
+        "question_he": "איפה צריך לשמור את מפתח ה-API?",
+        "type": "multiple_choice",
+        "options": [
+          { "id": "a", "text_he": "ישירות בקוד Python" },
+          { "id": "b", "text_he": "בקובץ .env שמוגדר ב-.gitignore" },
+          { "id": "c", "text_he": "בהערה בקוד" }
+        ],
+        "correct_answer": "b",
+        "explanation_he": "מפתח API הוא סיסמה. שומרים אותו ב-.env ומוסיפים את .env ל-.gitignore כדי שלא יועלה ל-GitHub."
+      },
+      {
+        "question_id": "q4_2",
+        "question_he": "מה הפרמטר שקובע כמה טוקנים קלוד יכול לייצר בתגובה?",
+        "type": "multiple_choice",
+        "options": [
+          { "id": "a", "text_he": "temperature" },
+          { "id": "b", "text_he": "max_tokens" },
+          { "id": "c", "text_he": "model" }
+        ],
+        "correct_answer": "b",
+        "explanation_he": "max_tokens מגביל את אורך התגובה. אם לא תגדיר ערך גבוה מספיק, קלוד יחתוך את תגובתו באמצע."
+      },
+      {
+        "question_id": "q4_3",
+        "question_he": "אתה רוצה לבנות צ'אטבוט שעונה אוטומטית להודעות לקוחות. מה עדיף להשתמש?",
+        "type": "multiple_choice",
+        "options": [
+          { "id": "a", "text_he": "Claude Code CLI — לפתוח ולסגור ידנית לכל לקוח" },
+          { "id": "b", "text_he": "Anthropic API — לשלב בקוד הצ'אטבוט" },
+          { "id": "c", "text_he": "לשלוח אימייל ל-Anthropic" }
+        ],
+        "correct_answer": "b",
+        "explanation_he": "ה-API מיועד לאוטומציה ושילוב במוצרים. ה-CLI מיועד לעבודה אינטראקטיבית של מפתחים."
+      }
+    ],
+    "passing_score": 2
+  },
+  "exercise": {
+    "exercise_id": "ex_4",
+    "title_he": "מצא ותקן את הבאגים",
+    "instructions_he": "הקוד הבא מנסה לקרוא ל-API של Anthropic, אבל יש בו 3 שגיאות. מצא אותן ותאר כיצד לתקן כל אחת:\n\n```python\nimport anthropic\n\nclient = anthropic.Anthropic(api_key=\"sk-hardcoded-key-12345\")\n\nmessage = client.messages.create(\n    model=\"gpt-4\",\n    messages=[\n        {\"role\": \"user\", \"content\": \"שלום\"}\n    ]\n)\n\nprint(message.text)\n```",
+    "placeholder_he": "פרט את 3 הבאגים ואיך לתקן כל אחד...",
+    "evaluation_mode": "claude_feedback",
+    "system_prompt_file": "exercise_feedback.txt",
+    "min_length": 50
+  }
+}

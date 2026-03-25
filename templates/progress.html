@@ -1,0 +1,104 @@
+{% extends "base.html" %}
+{% block title %}ההתקדמות שלי{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/lesson.css') }}">
+{% endblock %}
+
+{% block content %}
+<div style="max-width: 800px; margin: 0 auto;">
+
+  <h1 style="font-size: 1.8rem; font-weight: 700; margin-bottom: 0.3rem;">📊 ההתקדמות שלי</h1>
+  <p style="color: var(--text-light); margin-bottom: 2rem;">סיכום כל המודולים ותוצאות החידונים</p>
+
+  {% set total_modules = modules|length %}
+  {% set completed_modules = modules | selectattr('module_id', 'in', progress.keys()) | list | length %}
+
+  <!-- Overall progress -->
+  <div class="card" style="padding: 1.5rem; margin-bottom: 2rem; display: flex; align-items: center; gap: 1.5rem;">
+    <div style="font-size: 3rem;">🏆</div>
+    <div style="flex: 1;">
+      <div style="font-weight: 700; font-size: 1.1rem; margin-bottom: 0.5rem;">
+        {% set done_count = namespace(count=0) %}
+        {% for module in modules %}
+          {% if progress.get(module.module_id, {}).get('module_completed') %}
+            {% set done_count.count = done_count.count + 1 %}
+          {% endif %}
+        {% endfor %}
+        {{ done_count.count }} / {{ total_modules }} מודולים הושלמו
+      </div>
+      <div class="progress-bar-wrap">
+        <div class="progress-bar-fill" style="width: {{ ((done_count.count / total_modules) * 100)|int }}%; background: var(--success);"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Per-module status -->
+  {% for module in modules %}
+    {% set mod = progress.get(module.module_id, {}) %}
+    {% set lessons_done = mod.get('lessons_completed', [])|length %}
+    {% set total_lessons = module.lessons|length %}
+    {% set quiz_score = mod.get('quiz_score') %}
+    {% set quiz_passed = mod.get('quiz_passed', False) %}
+    {% set exercise_done = mod.get('exercise_submitted', False) %}
+    {% set module_complete = mod.get('module_completed', False) %}
+
+    <div class="card" style="padding: 1.5rem; margin-bottom: 1.25rem;">
+      <div style="display: flex; align-items: flex-start; justify-content: space-between; gap: 1rem; flex-wrap: wrap;">
+        <div>
+          <div style="font-size: 0.78rem; font-weight: 600; color: var(--text-light); text-transform: uppercase; letter-spacing: 0.08em;">מודול {{ module.order }}</div>
+          <h2 style="font-size: 1.2rem; font-weight: 700; margin: 0.25rem 0;">{{ module.icon }} {{ module.title_he }}</h2>
+        </div>
+        <div>
+          {% if module_complete %}
+            <span class="badge badge-success">🎉 הושלם</span>
+          {% elif lessons_done > 0 %}
+            <span class="badge badge-warning">בתהליך</span>
+          {% else %}
+            <span class="badge badge-info">לא התחיל</span>
+          {% endif %}
+        </div>
+      </div>
+
+      <div style="margin-top: 1rem; display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem;">
+        <!-- Lessons -->
+        <div style="text-align: center; padding: 0.75rem; background: var(--bg); border-radius: 8px;">
+          <div style="font-size: 1.5rem; font-weight: 700; color: var(--accent);">{{ lessons_done }}/{{ total_lessons }}</div>
+          <div style="font-size: 0.82rem; color: var(--text-light);">שיעורים</div>
+        </div>
+
+        <!-- Quiz -->
+        <div style="text-align: center; padding: 0.75rem; background: var(--bg); border-radius: 8px;">
+          {% if quiz_score is not none %}
+            <div style="font-size: 1.5rem; font-weight: 700; color: {{ 'var(--success)' if quiz_passed else 'var(--warning)' }};">
+              {{ quiz_score }}/{{ mod.get('quiz_total', 3) }}
+            </div>
+          {% else %}
+            <div style="font-size: 1.5rem; font-weight: 700; color: var(--border);">—</div>
+          {% endif %}
+          <div style="font-size: 0.82rem; color: var(--text-light);">חידון</div>
+        </div>
+
+        <!-- Exercise -->
+        <div style="text-align: center; padding: 0.75rem; background: var(--bg); border-radius: 8px;">
+          <div style="font-size: 1.5rem; font-weight: 700; color: {{ 'var(--success)' if exercise_done else 'var(--border)' }};">
+            {{ '✓' if exercise_done else '—' }}
+          </div>
+          <div style="font-size: 0.82rem; color: var(--text-light);">תרגיל</div>
+        </div>
+      </div>
+
+      <div style="margin-top: 1rem; display: flex; gap: 0.5rem; flex-wrap: wrap;">
+        <a href="/module/{{ module.module_id }}" class="btn btn-outline btn-sm">שיעורים</a>
+        {% if lessons_done >= total_lessons %}
+          <a href="/quiz/{{ module.module_id }}" class="btn btn-outline btn-sm">חידון</a>
+        {% endif %}
+        {% if quiz_passed %}
+          <a href="/exercise/{{ module.module_id }}" class="btn btn-outline btn-sm">תרגיל</a>
+        {% endif %}
+      </div>
+    </div>
+  {% endfor %}
+
+</div>
+{% endblock %}

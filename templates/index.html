@@ -1,0 +1,59 @@
+{% extends "base.html" %}
+{% block title %}לומדים Claude Code — דף הבית{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/lesson.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="hero">
+  <h1 class="hero-title">לומדים Claude Code</h1>
+  <p class="hero-sub">מדריך מעשי בעברית — מפרומפטים ראשונים ועד שילוב ב-API</p>
+</div>
+
+<div class="modules-grid">
+  {% for module in modules %}
+    {% set mod_status = progress.get(module.module_id, {}) %}
+    {% set completed = mod_status.get('module_completed', False) %}
+    {% set quiz_passed = mod_status.get('quiz_passed', False) %}
+    {% set lessons_done = mod_status.get('lessons_completed', [])|length %}
+    {% set total_lessons = module.lessons|length %}
+
+    <div class="module-card card {% if completed %}module-done{% endif %}">
+      <div class="module-icon">{{ module.icon }}</div>
+      <div class="module-num">מודול {{ module.order }}</div>
+      <h2 class="module-title">{{ module.title_he }}</h2>
+      <p class="module-desc">{{ module.description_he }}</p>
+
+      <div class="module-progress">
+        <div class="progress-bar-wrap">
+          {% set pct = ((lessons_done / total_lessons) * 100)|int if total_lessons > 0 else 0 %}
+          <div class="progress-bar-fill" style="width: {{ pct }}%"></div>
+        </div>
+        <span class="progress-label">{{ lessons_done }}/{{ total_lessons }} שיעורים</span>
+      </div>
+
+      <div class="module-badges">
+        {% if quiz_passed %}
+          <span class="badge badge-success">✓ חידון עבר</span>
+        {% endif %}
+        {% if mod_status.get('exercise_submitted') %}
+          <span class="badge badge-info">✓ תרגיל הוגש</span>
+        {% endif %}
+        {% if completed %}
+          <span class="badge badge-success">🎉 הושלם!</span>
+        {% endif %}
+      </div>
+
+      <div class="module-actions">
+        <a href="/module/{{ module.module_id }}" class="btn btn-primary">
+          {% if lessons_done == 0 %}התחל{% elif completed %}חזור{% else %}המשך{% endif %}
+        </a>
+        {% if quiz_passed %}
+          <a href="/exercise/{{ module.module_id }}" class="btn btn-outline btn-sm">תרגיל</a>
+        {% endif %}
+      </div>
+    </div>
+  {% endfor %}
+</div>
+{% endblock %}

@@ -1,0 +1,70 @@
+{% extends "base.html" %}
+{% block title %}חידון — {{ module.title_he }}{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/quiz.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="quiz-container">
+  <div class="quiz-header">
+    <a href="/module/{{ module.module_id }}" class="breadcrumb-link">← חזור לשיעורים</a>
+    <h1 class="quiz-title">📝 חידון: {{ module.title_he }}</h1>
+    <p class="quiz-subtitle">ענה על כל השאלות ולחץ "בדוק תשובות"</p>
+  </div>
+
+  <div id="quiz-form">
+    {% for q in quiz.questions %}
+    <div class="question-card card" data-qid="{{ q.question_id }}" data-correct="{{ q.correct_answer }}">
+      <div class="question-num">שאלה {{ loop.index }}</div>
+      <div class="question-text">{{ q.question_he }}</div>
+
+      <div class="options-list">
+        {% for opt in q.options %}
+        <label class="option-label" data-opt-id="{{ opt.id }}">
+          <input type="radio" name="{{ q.question_id }}" value="{{ opt.id }}" class="option-radio">
+          <span class="option-text">{{ opt.text_he }}</span>
+        </label>
+        {% endfor %}
+      </div>
+
+      <div class="question-feedback hidden"></div>
+      <div class="hint-area hidden">
+        <button class="btn btn-outline btn-sm hint-btn" onclick="getHint(this, '{{ q.question_id }}')">
+          💡 קבל רמז
+        </button>
+        <div class="hint-text hidden"></div>
+      </div>
+    </div>
+    {% endfor %}
+
+    <div class="quiz-actions">
+      <button id="submit-quiz" class="btn btn-primary" onclick="submitQuiz()">
+        בדוק תשובות
+      </button>
+    </div>
+  </div>
+
+  <!-- Results panel (hidden until submitted) -->
+  <div id="quiz-results" class="quiz-results hidden">
+    <div class="result-score" id="result-score"></div>
+    <div class="result-message" id="result-message"></div>
+    <div class="result-actions">
+      <a id="exercise-btn" href="/exercise/{{ module.module_id }}" class="btn btn-success hidden">
+        לתרגיל ←
+      </a>
+      <button class="btn btn-outline" onclick="resetQuiz()">נסה שוב</button>
+      <a href="/" class="btn btn-outline">חזור לבית</a>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+const MODULE_ID = "{{ module.module_id }}";
+const PASSING_SCORE = {{ quiz.passing_score }};
+const TOTAL = {{ quiz.questions|length }};
+</script>
+<script src="{{ url_for('static', filename='js/quiz.js') }}"></script>
+{% endblock %}

@@ -1,0 +1,171 @@
+{% extends "base.html" %}
+{% block title %}{{ lesson.title_he }} — {{ module.title_he }}{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/lesson.css') }}">
+{% endblock %}
+
+{% block content %}
+
+<!-- Breadcrumb & progress -->
+<div class="lesson-breadcrumb">
+  <a href="/">בית</a> ›
+  <a href="/module/{{ module.module_id }}">{{ module.title_he }}</a> ›
+  {{ lesson.title_he }}
+</div>
+
+<!-- Sidebar + content layout -->
+<div class="lesson-layout">
+
+  <!-- Sidebar: lesson list -->
+  <aside class="lesson-sidebar">
+    <div class="sidebar-title">{{ module.icon }} {{ module.title_he }}</div>
+    <ul class="sidebar-lessons">
+      {% for l in lessons %}
+        <li class="sidebar-lesson {% if l.lesson_id == lesson.lesson_id %}active{% endif %} {% if l.lesson_id in status.get('lessons_completed', []) %}done{% endif %}">
+          <a href="/lesson/{{ l.lesson_id }}">
+            {% if l.lesson_id in status.get('lessons_completed', []) %}✓ {% endif %}
+            {{ l.title_he }}
+          </a>
+        </li>
+      {% endfor %}
+      <li class="sidebar-lesson {% if not quiz_unlocked %}locked{% endif %}">
+        {% if quiz_unlocked %}
+          <a href="/quiz/{{ module.module_id }}">📝 חידון</a>
+        {% else %}
+          🔒 חידון (סיים את כל השיעורים)
+        {% endif %}
+      </li>
+      <li class="sidebar-lesson {% if not status.get('quiz_passed') %}locked{% endif %}">
+        {% if status.get('quiz_passed') %}
+          <a href="/exercise/{{ module.module_id }}">🎯 תרגיל</a>
+        {% else %}
+          🔒 תרגיל (עבור את החידון)
+        {% endif %}
+      </li>
+    </ul>
+  </aside>
+
+  <!-- Main lesson content -->
+  <article class="lesson-body">
+    <h1 class="lesson-title">{{ lesson.title_he }}</h1>
+    <div class="lesson-meta">שיעור {{ lesson_index + 1 }} מתוך {{ lessons|length }}</div>
+
+    {% for block in lesson.content_blocks %}
+
+      {% if block.type == 'text' %}
+        <p class="lesson-text">{{ block.text_he }}</p>
+
+      {% elif block.type == 'tip' %}
+        <div class="tip-block">{{ block.text_he }}</div>
+
+      {% elif block.type == 'code' %}
+        <div class="code-block-wrap">
+          {% if block.caption_he %}
+            <div class="code-caption">{{ block.caption_he }}</div>
+          {% endif %}
+          <pre><code class="language-{{ block.language }}">{{ block.code }}</code></pre>
+        </div>
+
+      {% elif block.type == 'comparison' %}
+        <div class="comparison">
+          <div class="comparison-bad">
+            <div class="comparison-label">{{ block.bad_label_he }}</div>
+            <pre><code>{{ block.bad_example }}</code></pre>
+          </div>
+          <div class="comparison-good">
+            <div class="comparison-label">{{ block.good_label_he }}</div>
+            <pre><code>{{ block.good_example }}</code></pre>
+          </div>
+        </div>
+
+      {% elif block.type == 'live_demo' %}
+        <div class="demo-area"
+             data-system="{{ block.system }}"
+             data-prompt="{{ block.prompt }}">
+          <div class="demo-description">{{ block.description_he }}</div>
+          <button class="btn btn-primary btn-sm demo-run-btn" onclick="runDemo(this)">
+            ▶ הרץ דמו חי
+          </button>
+          <div class="demo-output"></div>
+        </div>
+
+      {% endif %}
+
+    {% endfor %}
+
+    <!-- Navigation -->
+    <div class="lesson-nav">
+      {% if prev_id %}
+        <a href="/lesson/{{ prev_id }}" class="btn btn-outline">→ שיעור קודם</a>
+      {% else %}
+        <span></span>
+      {% endif %}
+
+      {% if next_id %}
+        <a href="/lesson/{{ next_id }}" class="btn btn-primary">שיעור הבא ←</a>
+      {% elif quiz_unlocked %}
+        <a href="/quiz/{{ module.module_id }}" class="btn btn-success">לחידון ←</a>
+      {% else %}
+        <span class="lesson-nav-hint">סיים את כל השיעורים לפתיחת החידון</span>
+      {% endif %}
+    </div>
+
+  </article>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{{ url_for('static', filename='js/exercise.js') }}"></script>
+<script>
+function runDemo(btn) {
+  const area = btn.closest('.demo-area');
+  const output = area.querySelector('.demo-output');
+  const system = area.dataset.system;
+  const prompt = area.dataset.prompt;
+
+  btn.disabled = true;
+  btn.textContent = '⏳ מייצר...';
+  output.textContent = '';
+  output.classList.add('visible');
+
+  const evtSource = new EventSource('/api/demo/stream?' + new URLSearchParams({
+    system, prompt, temperature: '0.8'
+  }));
+
+  // Use POST via fetch + SSE workaround (fetch SSE)
+  btn.disabled = true;
+  output.textContent = '';
+  output.classList.add('visible');
+
+  fetch('/api/demo/stream', {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({system, prompt, temperature: 0.8})
+  }).then(response => {
+    const reader = response.body.getReader();
+    const decoder = new TextDecoder();
+    function read() {
+      reader.read().then(({done, value}) => {
+        if (done) { btn.disabled = false; btn.textContent = '▶ הרץ שוב'; return; }
+        const text = decoder.decode(value);
+        const lines = text.split('\n');
+        for (const line of lines) {
+          if (line.startsWith('data: ')) {
+            const chunk = line.slice(6);
+            if (chunk === '[DONE]') { btn.disabled = false; btn.textContent = '▶ הרץ שוב'; return; }
+            output.textContent += chunk;
+          }
+        }
+        read();
+      });
+    }
+    read();
+  }).catch(err => {
+    output.textContent = 'שגיאה: ' + err.message;
+    btn.disabled = false;
+    btn.textContent = '▶ הרץ שוב';
+  });
+}
+</script>
+{% endblock %}
